@@ -1,9 +1,11 @@
 package transactions;
 
+
 import java.util.HashSet;
 import java.util.Set;
 public class Region {
     private String name;
+
 
     private Set<Place> places = new HashSet<>();
     private Set<Carrier> carriers = new HashSet<>();

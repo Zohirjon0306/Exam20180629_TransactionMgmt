@@ -2,40 +2,56 @@ package transactions;
 
 public class Transaction {
     private String transactionId;
-    private Carrier carrier;
-    private Request request;
-    private Offer offer;
+    private String carrierName;
+    private String requestId;
+    private String offerId;
+    private int score;
 
-    public Transaction(String transactionId, Carrier carrier, Request request, Offer offer) {
+
+    public Transaction(String transactionId, String carrierName, String requestId, String offerId) {
         this.transactionId = transactionId;
-        this.carrier = carrier;
-        this.request = request;
-        this.offer = offer;
+        this.carrierName = carrierName;
+        this.requestId = requestId;
+        this.offerId = offerId;
     }
 
     public String getTransactionId() {
         return transactionId;
     }
 
-    public Carrier getCarrier() {
-        return carrier;
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 
-    public Request getRequest() {
-        return request;
+    public String getCarrierName() {
+        return carrierName;
     }
 
-    public Offer getOffer() {
-        return offer;
+    public void setCarrierName(String carrierName) {
+        this.carrierName = carrierName;
     }
 
-    @Override
-    public String toString() {
-        return "Transaction{" +
-                "transactionId='" + transactionId + '\'' +
-                ", carrier=" + carrier +
-                ", request=" + request +
-                ", offer=" + offer +
-                '}';
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    public String getOfferId() {
+        return offerId;
+    }
+
+    public void setOfferId(String offerId) {
+        this.offerId = offerId;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public int getScore() {
+        return score;
     }
 }

@@ -15,11 +15,12 @@ public class Example {
 	list1 = tm.addRegion("reg1", "pl3", "pl1", "pl5");
 		print(list1); //[pl1, pl3, pl5] 
 	list1 = tm.addRegion("reg2", "pl4", "pl8", "pl6");
+	print(list1);
 	list1= tm.addRegion("reg7", "pl4", "pl7", "pl7", "pl2");
 		print(list1); //[pl2, pl7]
 	tm.addCarrier("c4", "reg1", "reg7");
 	tm.addCarrier("c5", "reg2", "reg1", "reg7");
-	list1 = tm.addCarrier("c3", "reg2", "reg3", "reg2", "reg1");
+	list1 = tm.addCarrier("c3", "reg2", "reg2", "reg1");
 		print(list1); //[reg1, reg2]
 	list1 = tm.getCarriersForRegion("reg1");
 		print(list1); //[c3, c4, c5]
@@ -72,7 +73,7 @@ public class Example {
 		print(m1); //{3=[reg1], 1=[reg2, reg7]}
 	SortedMap<String, Integer> m2 = tm.scorePerCarrier(5);
 		print(m2); //{c3=14, c4=7}
-	SortedMap<String, Long> m3 = tm.nTPerProduct();
+	TreeMap<byte[], Long> m3 = tm.nTPerProduct();
 		print(m3); //{product1=1, product2=1, product4=1, product6=2}
 }
 
