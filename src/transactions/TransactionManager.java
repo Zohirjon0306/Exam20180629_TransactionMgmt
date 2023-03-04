@@ -29,7 +29,7 @@ public class TransactionManager {
 
 	}
 //version-2
-	//	public List<String> addRegion(String regionName, String... placeNames) {
+//		public List<String> addRegion(String regionName, String... placeNames) {
 //		Region region = new Region(regionName);
 //		for (String p : placeNames) {
 //			if (!places.containsKey(p)){
@@ -39,8 +39,8 @@ public class TransactionManager {
 //			}
 //		}
 //		List<String> regionPlaces = new ArrayList<>();
-//		for (Place place : region.getPlaces()) {
-//			regionPlaces.add(place.getName());
+//		for (String place : region.getPlaces()) {
+//			regionPlaces.add(String.valueOf(place.getClass()));
 //		}
 //
 //		Collections.sort(regionPlaces);
@@ -100,30 +100,99 @@ public class TransactionManager {
 	//R3
 	public void addTransaction(String transactionId, String carrierName, String requestId, String offerId)
 			throws TMException {
+		//Offer ID and Requestion ID Bound Exception
+		for (Transaction transaction : transactions.values()) {
+			if ((transaction.getOfferId().equals(offerId) || (transaction.getRequestId().equals(requestId)))) {
+				throw new TMException();
+			}
+		}
+		if (requestId == null || offerId == null) {
+			throw new TMException();
+		}
 
+		//Product ID Exception
+		Offer neededOffer = null;
+		Request neededRequest = null;
+		if (neededOffer == null || neededRequest == null) {
+			throw new TMException();
+		}
+
+
+		for (Offer offer : offers.values()) {
+			if (offer.getOfferId().equals(offerId)) {
+				neededOffer = offer;
+			}
+		}
+		for (Request request : requests.values()) {
+			if (request.getRequestID().equals(requestId)) {
+				neededRequest = request;
+			}
+		}
+		if (!neededOffer.getProductId().equals(neededRequest.getProductId())) {
+			throw new TMException();
+		}
+
+		// Exception to PlaceName
+
+		List<String[]> neededRegion = new ArrayList<>();
+		List<String[]> needPlaceNameList = new ArrayList<>();
+
+		for (Carrier carrier : carriers) {
+			if (carrier.getCarrierName().equals(carrierName)){
+				Carrier neededCarrier = carrier;
+//				neededRegion.add(neededCarrier.getRegions());
+			}
+		}
+
+//		for (Carrier carrier : carriers {
+//			if (carrier.getCarrierName().equals(carrierName)) {
+//				Carrier neededCarrier = carrier;
+//				neededRegion.add(neededCarrier.getRegionName());
+//			}
+//		}
+		for (Region region : regions.values()) {
+			if (neededRegion.contains(region.getPlaces())){
+//				needPlaceNameList.add(region.getPlaces());
+			}
+		}
+//		for (Region region : regionMap.headSet()) {
+//			if (neededRegion.contains(region.getRegionName())) {
+//				needPlaceNameList.add(region.getPlaceNames());
+//			}
+//		}
+		if (!needPlaceNameList.contains(neededOffer.getPlace()) || !needPlaceNameList.contains(neededRequest.getPlace())) {
+			throw new TMException();
+		}
+
+
+		Transaction transaction = new Transaction(transactionId, carrierName, requestId, offerId);
+		transaction.getTransactionId().equals(transaction);
 	}
 
-	public boolean evaluateTransaction(String transactionId, int score) {
 
-		return false;
+	public boolean evaluateTransaction(String transactionId, int score) {
+		if(score < 1 || score > 10) return false;
+
+		transactions.get(transactionId).setScore(score);
+		return true;
 	}
 
 	//R4
 	public SortedMap<Long, List<String>> deliveryRegionsPerNT() {
 		Map<String, Long> regions = transactions.values().stream()
 				.map(t->t.getRequestId().getClass())
-				.collect(Collectors.groupingBy(r->r.getName(), Collectors.counting()));
+				.collect(Collectors.groupingBy(Class::getName, Collectors.counting()));
 
-		return regions.entrySet().stream().collect(Collectors.groupingBy(e->e.getValue(),
+		return regions.entrySet().stream().collect(Collectors.groupingBy(Map.Entry::getValue,
 				()->new TreeMap<Long,List<String>>(Comparator.reverseOrder()),
-				Collectors.mapping(e->e.getKey(), Collectors.toList())));
+				Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
 	}
 
 	public SortedMap<String, Integer> scorePerCarrier(int minimumScore) {
 		return transactions.values().stream()
 				.filter(t->t.getScore() >= minimumScore)
-				.collect(Collectors.groupingBy(t->t.getCarrierName(),
-						TreeMap::new, Collectors.summingInt(t->t.getScore())));
+				.collect(Collectors.groupingBy(Transaction::getCarrierName,
+						TreeMap::new, Collectors.summingInt(Transaction::getScore)));
 	}
 	public TreeMap<byte[], Long> nTPerProduct() {
 		return transactions.values()
