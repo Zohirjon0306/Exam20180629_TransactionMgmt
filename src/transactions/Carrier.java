@@ -1,33 +1,30 @@
 package transactions;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.TreeSet;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Carrier {
-    private String carrierName;
-    private Set<Region> regions = new TreeSet<>(Comparator.comparing(Region::getName).reversed());
+    private String name;
+    private Set<String> regions = new HashSet<>();
+    private List<Transaction> transactions = new ArrayList<>();
 
-    public Carrier(String carrierName, String[] regionNames) {
-        this.carrierName = carrierName;
+    public List<Transaction> getTransactions() {
+        return this.transactions;
     }
 
-    public String getCarrierName() {
-        return carrierName;
-    }
-    public void addRegion(Region region) {
-
+    public Carrier(String name, List<String> regions) {
+        this.name = name;
+        this.regions.addAll(regions);
     }
 
-    @Override
-    public String toString() {
-        return "Carrier{" +
-                "carrierName='" + carrierName + '\'' +
-                ", regions=" + regions +
-                '}';
+    public String getName() {
+        return this.name;
     }
 
-    public Region[] getRegions() {
-        return new Region[0];
+    public Set<String> getRegions(){
+        return this.regions;
     }
+
 }

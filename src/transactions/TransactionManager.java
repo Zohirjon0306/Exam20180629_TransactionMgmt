@@ -2,202 +2,195 @@ package transactions;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
+import java.util.stream.Stream;
 public class TransactionManager {
 	private Map<String, Region> regions = new HashMap<>();
-	private Map<String, Place> places = new HashMap<>();
-	private Set<Carrier> carriers = new HashSet<>();
-	private Map<String,Request> requests = new HashMap<>();
-	private Map<String,Offer> offers = new HashMap<>();
-	private Map<String,Transaction> transactions = new HashMap<>();
-	private Map<EvaluatedTransaction, Integer> evaluatedTransactionMap = new HashMap();
 
+	private Map<String, List<String>> placePerRegions = new HashMap<>();
 
+	private Map<String, Carrier> carriers = new HashMap<>();
+	private Set<String> places = new HashSet<>();
+	private Map<String, Request> requests = new HashMap<>();
+	private Map<String, Offer> offers = new HashMap<>();
+	private Map<String, Transaction> transactions = new HashMap<>();
 
 	//R1
 	public List<String> addRegion(String regionName, String... placeNames) {
-		Region region = new Region(regionName);
-		for (String p : placeNames) {
-			if (!places.containsKey(p)){
-				Place place = new Place(p, region);
-				region.addPlace(place);
-				places.put(p, place);
+
+		List<String> l = new ArrayList<>();
+
+		for(String str : placeNames) {
+			if(!this.places.contains(str)) {
+				l.add(str);
 			}
 		}
-		regions.put(regionName, region);
-		return region.getPlaces().stream().map(Place::getName).sorted().collect(Collectors.toList());
-
+		this.placePerRegions.put(regionName, l);
+		Region r = new Region(regionName, l.toArray(new String[l.size()]));
+		this.regions.put(regionName, r);
+		this.places.addAll(Stream.of(placeNames).collect(Collectors.toList()));
+		return r.getPlaces().stream().sorted().collect(Collectors.toList());
 	}
-//version-2
-//		public List<String> addRegion(String regionName, String... placeNames) {
-//		Region region = new Region(regionName);
-//		for (String p : placeNames) {
-//			if (!places.containsKey(p)){
-//				Place place = new Place(p, region);
-//				region.addPlace(place);
-//				places.put(p, place);
-//			}
-//		}
-//		List<String> regionPlaces = new ArrayList<>();
-//		for (String place : region.getPlaces()) {
-//			regionPlaces.add(String.valueOf(place.getClass()));
-//		}
-//
-//		Collections.sort(regionPlaces);
-//		return regionPlaces;
-//	}
-
 
 	public List<String> addCarrier(String carrierName, String... regionNames) {
-		Carrier carrier = new Carrier(carrierName, regionNames);
-		carriers.add(carrier);
+		List<String> l = new ArrayList<>();
 
-		List<String> carrierRegionList = new ArrayList<>();
-
-		for (String regionName : regionNames) {
-			if (!carrierRegionList.contains(regionName)) {
-				carrierRegionList.add(regionName);
+		for(String str : regionNames) {
+			if(this.regions.containsKey(str)) {
+				l.add(str);
 			}
 		}
-		Collections.sort(carrierRegionList);
-		return carrierRegionList;
+		Carrier c = new Carrier(carrierName, l);
+		this.carriers.put(carrierName, c);
+		return c.getRegions().stream().sorted().collect(Collectors.toList());
 	}
 
 	public List<String> getCarriersForRegion(String regionName) {
+		List<String> l = new ArrayList<>();
 
-		List<String> carrierList = new ArrayList<>();
-		for (Carrier carrier : carriers) {
-			carrierList.add(carrier.getCarrierName());
+		for(Carrier c : this.carriers.values()) {
+			if(c.getRegions().contains(regionName)) {
+				l.add(c.getName());
+			}
 		}
-		Collections.sort(carrierList);
-		return carrierList;
+		return l.stream().sorted().collect(Collectors.toList());
 	}
 
 	//R2
-	public void addRequest(String requestId, String placeName, String productId)
-			throws TMException {
-		if(!places.containsKey(placeName)) throw new TMException();
-		if(requests.containsKey(requestId)) throw new TMException();
-		Place place = places.get(placeName);
-
-		Request request = new Request(requestId, place, productId);
-		requests.put(requestId, request);
-
+	public void addRequest(String requestId, String placeName, String productId) throws TMException {
+		if(this.requests.containsKey(requestId)) {
+			throw new TMException();
+		}
+		if(!this.places.contains(placeName)) {
+			throw new TMException();
+		}
+		Request r = new Request(requestId, placeName, productId);
+		this.requests.put(requestId, r);
 	}
 
-	public void addOffer(String offerId, String placeName, String productId)
-			throws TMException {
-		if(!places.containsKey(placeName)) throw new TMException();
-		if(offers.containsKey(offerId)) throw new TMException();
+	public void addOffer(String offerId, String placeName, String productId) throws TMException {
+		if(this.offers.containsKey(offerId)) {
+			throw new TMException();
+		}
 
-		Place place = places.get(placeName);
+		if(!this.places.contains(placeName)) {
+			throw new TMException();
+		}
 
-		Offer offer = new Offer(offerId, place, productId);
-		offers.put(offerId, offer);
+		Offer o = new Offer(offerId, placeName, productId);
+
+		this.offers.put(offerId, o);
 	}
 
 
 	//R3
-	public void addTransaction(String transactionId, String carrierName, String requestId, String offerId)
-			throws TMException {
-		//Offer ID and Requestion ID Bound Exception
-		for (Transaction transaction : transactions.values()) {
-			if ((transaction.getOfferId().equals(offerId) || (transaction.getRequestId().equals(requestId)))) {
+	public void addTransaction(String transactionId, String carrierName, String requestId, String offerId) throws TMException {
+		for(Transaction t : this.transactions.values()) {
+			if(t.getOfferId().equals(offerId) || t.getRequestId().equals(requestId)) {
 				throw new TMException();
 			}
 		}
-		if (requestId == null || offerId == null) {
+
+		if(!this.offers.get(offerId).getProductId().equals(this.requests.get(requestId).getProduct())) {
 			throw new TMException();
 		}
-
-		//Product ID Exception
-		Offer neededOffer = null;
-		Request neededRequest = null;
-		if (neededOffer == null || neededRequest == null) {
-			throw new TMException();
-		}
-
-
-		for (Offer offer : offers.values()) {
-			if (offer.getOfferId().equals(offerId)) {
-				neededOffer = offer;
+		boolean check1 = false, check2 = false;
+		for(String str : this.carriers.get(carrierName).getRegions()) {
+			if(this.placePerRegions.get(str).contains(this.offers.get(offerId).getPlaceName())) {
+				check1 = true;
 			}
-		}
-		for (Request request : requests.values()) {
-			if (request.getRequestID().equals(requestId)) {
-				neededRequest = request;
-			}
-		}
-		if (!neededOffer.getProductId().equals(neededRequest.getProductId())) {
-			throw new TMException();
-		}
 
-		// Exception to PlaceName
-
-		List<String[]> neededRegion = new ArrayList<>();
-		List<String[]> needPlaceNameList = new ArrayList<>();
-
-		for (Carrier carrier : carriers) {
-			if (carrier.getCarrierName().equals(carrierName)){
-				Carrier neededCarrier = carrier;
-//				neededRegion.add(neededCarrier.getRegions());
+			if(this.placePerRegions.get(str).contains(this.requests.get(requestId).getPlace())) {
+				check2 = true;
 			}
 		}
 
-//		for (Carrier carrier : carriers {
-//			if (carrier.getCarrierName().equals(carrierName)) {
-//				Carrier neededCarrier = carrier;
-//				neededRegion.add(neededCarrier.getRegionName());
-//			}
-//		}
-		for (Region region : regions.values()) {
-			if (neededRegion.contains(region.getPlaces())){
-//				needPlaceNameList.add(region.getPlaces());
-			}
-		}
-//		for (Region region : regionMap.headSet()) {
-//			if (neededRegion.contains(region.getRegionName())) {
-//				needPlaceNameList.add(region.getPlaceNames());
-//			}
-//		}
-		if (!needPlaceNameList.contains(neededOffer.getPlace()) || !needPlaceNameList.contains(neededRequest.getPlace())) {
+		if(!check1 || !check2) {
 			throw new TMException();
 		}
 
-
-		Transaction transaction = new Transaction(transactionId, carrierName, requestId, offerId);
-		transaction.getTransactionId().equals(transaction);
+		Transaction t = new Transaction(transactionId, carrierName, requestId, offerId);
+		this.transactions.put(transactionId, t);
+		this.requests.get(requestId).setTransaction(t);
+		this.offers.get(offerId).setTransaction(t);
+		this.carriers.get(carrierName).getTransactions().add(t);
 	}
 
-
 	public boolean evaluateTransaction(String transactionId, int score) {
-		if(score < 1 || score > 10) return false;
-
-		transactions.get(transactionId).setScore(score);
-		return true;
+		this.transactions.get(transactionId).setScore(score);
+		return this.transactions.get(transactionId).getScore() >= 1 && this.transactions.get(transactionId).getScore() <= 10;
 	}
 
 	//R4
 	public SortedMap<Long, List<String>> deliveryRegionsPerNT() {
-		Map<String, Long> regions = transactions.values().stream()
-				.map(t->t.getRequestId().getClass())
-				.collect(Collectors.groupingBy(Class::getName, Collectors.counting()));
+		TreeMap<Long, List<String>> ris = new TreeMap<>(Comparator.reverseOrder());
+		Set<Long> set = new HashSet<>();
+		Long c;
+		List<String> list = new ArrayList<>();
+		Map<Region, Long> map = new HashMap<>();
+		for(Region r : this.regions.values()) {
+			c = 0L;
+			for(Transaction t : this.transactions.values()) {
+				String reqId = t.getRequestId();
+				String placeReq = this.requests.get(reqId).getPlace();
+				if(this.placePerRegions.get(r.getName()).contains(placeReq)) {
+					c++;
+				}
+			}
+			set.add(c);
+			map.put(r, c);
+		}
+		for(Long l : set) {
+			list.clear();
+			for(Region r : this.regions.values()) {
+				if(map.get(r) == l) {
+					list.add(r.getName());
+				}
+			}
+			ris.put(l, list.stream().sorted().collect(Collectors.toList()));
+		}
 
-		return regions.entrySet().stream().collect(Collectors.groupingBy(Map.Entry::getValue,
-				()->new TreeMap<Long,List<String>>(Comparator.reverseOrder()),
-				Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+
+		return ris;
 	}
 
 	public SortedMap<String, Integer> scorePerCarrier(int minimumScore) {
-		return transactions.values().stream()
-				.filter(t->t.getScore() >= minimumScore)
-				.collect(Collectors.groupingBy(Transaction::getCarrierName,
-						TreeMap::new, Collectors.summingInt(Transaction::getScore)));
+		SortedMap<String, Integer> ris = new TreeMap<>();
+		Integer i;
+
+		for(Carrier c : this.carriers.values()) {
+			i = 0;
+			for(Transaction t : c.getTransactions()) {
+				if(t.getScore() >= minimumScore) {
+					i += t.getScore();
+				}
+			}
+			if(i!=0)
+				ris.put(c.getName(), i);
+		}
+
+		return ris;
 	}
-	public TreeMap<byte[], Long> nTPerProduct() {
-		return transactions.values()
-				.stream()
-				.collect(Collectors.groupingBy(t->t.getRequestId().getBytes(),TreeMap::new,Collectors.counting()));
+
+	public SortedMap<String, Long> nTPerProduct() {
+		Set<String> products = new HashSet<>();
+		SortedMap<String, Long> ris = new TreeMap<String, Long>();
+
+		for(Transaction t : this.transactions.values()) {
+			products.add(this.offers.get(t.getOfferId()).getProductId());
+		}
+
+		Long l;
+		for(String str : products) {
+			l = 0L;
+			for(Transaction t : this.transactions.values()) {
+				if(this.offers.get(t.getOfferId()).getProductId().equals(str))
+					l++;
+			}
+			if(l != 0)
+				ris.put(str, l);
+		}
+
+		return ris;
 	}
 }
 

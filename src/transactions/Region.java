@@ -1,45 +1,25 @@
 package transactions;
 
-
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class Region {
+
+    private Set<String> places = new HashSet<>();
     private String name;
 
-
-    private Set<Place> places = new HashSet<>();
-    private Set<Carrier> carriers = new HashSet<>();
-
-    public Region(String name) {
+    public Region(String name, String...place) {
         this.name = name;
-    }
-
-    public void addPlace(Place place) {
-        places.add(place);
+        this.places.addAll(Stream.of(place).collect(Collectors.toList()));
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
-    public Set<Place> getPlaces() {
-        return places;
-    }
-
-    public void addCarrier(Carrier carrier) {
-        carriers.add(carrier);
-    }
-
-    public Set<Carrier> getCarriers() {
-        return carriers;
-    }
-
-    @Override
-    public String toString() {
-        return "Region{" +
-                "name='" + name + '\'' +
-                ", places=" + places +
-                ", carriers=" + carriers +
-                '}';
+    public Set<String> getPlaces(){
+        return this.places;
     }
 }

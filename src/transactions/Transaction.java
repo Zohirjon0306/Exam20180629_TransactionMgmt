@@ -1,14 +1,14 @@
 package transactions;
 
 public class Transaction {
+
     private String transactionId;
     private String carrierName;
     private String requestId;
     private String offerId;
     private int score;
 
-
-    public Transaction(String transactionId, String carrierName, String requestId, String offerId) {
+    public Transaction (String transactionId, String carrierName, String requestId, String offerId) {
         this.transactionId = transactionId;
         this.carrierName = carrierName;
         this.requestId = requestId;
@@ -16,42 +16,26 @@ public class Transaction {
     }
 
     public String getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
+        return this.transactionId;
     }
 
     public String getCarrierName() {
-        return carrierName;
-    }
-
-    public void setCarrierName(String carrierName) {
-        this.carrierName = carrierName;
+        return this.carrierName;
     }
 
     public String getRequestId() {
-        return requestId;
-    }
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
+        return this.requestId;
     }
 
     public String getOfferId() {
-        return offerId;
-    }
-
-    public void setOfferId(String offerId) {
-        this.offerId = offerId;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
+        return this.offerId;
     }
 
     public int getScore() {
-        return score;
+        return this.score;
+    }
+
+    public void setScore(int s) {
+        this.score = s;
     }
 }

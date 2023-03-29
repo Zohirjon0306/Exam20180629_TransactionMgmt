@@ -73,7 +73,7 @@ public class Example {
 		print(m1); //{3=[reg1], 1=[reg2, reg7]}
 	SortedMap<String, Integer> m2 = tm.scorePerCarrier(5);
 		print(m2); //{c3=14, c4=7}
-	TreeMap<byte[], Long> m3 = tm.nTPerProduct();
+	SortedMap<String, Long> m3 = tm.nTPerProduct();
 		print(m3); //{product1=1, product2=1, product4=1, product6=2}
 }
 

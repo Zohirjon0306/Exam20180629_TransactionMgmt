@@ -1,46 +1,35 @@
 package transactions;
 
 public class Request {
-    private String requestID;
-    private Place place;
-    private String productId;
+
+    private String code;
+    private String place;
+    private String product;
     private Transaction transaction;
 
-
-    public Request(String requestID, Place place, String productId) {
-        this.requestID = requestID;
-        this.place = place;
-        this.productId = productId;
-    }
-
-
-    public String getRequestID() {
-        return requestID;
-    }
-    public Place getPlace() {
-        return place;
-    }
-    public String getProductId() {
-        return productId;
-    }
-
-    public Region getRegion() {
-        return place.getRegion();
+    public Transaction getTransaction() {
+        return this.transaction;
     }
 
     public void setTransaction(Transaction transaction) {
         this.transaction = transaction;
     }
-    public Transaction getTransaction() {
-        return transaction;
+
+    public Request(String requestId, String placeName, String productId) {
+        this.code = requestId;
+        this.place = placeName;
+        this.product = productId;
     }
 
-    @Override
-    public String toString() {
-        return "Request{" +
-                "requestID='" + requestID + '\'' +
-                ", place=" + place +
-                ", productId='" + productId + '\'' +
-                '}';
+    public String getPlace() {
+        return this.place;
+    }
+
+    public String getProduct() {
+        return this.product;
+    }
+
+    public String getCode() {
+        return this.code;
     }
 }

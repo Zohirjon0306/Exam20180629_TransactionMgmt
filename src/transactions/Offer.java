@@ -1,45 +1,33 @@
 package transactions;
 public class Offer {
     private String offerId;
-    private Place place;
+    private String placeName;
     private String productId;
     private Transaction transaction;
 
-    public Offer(String offerId, Place place, String productId) {
-        this.offerId = offerId;
-        this.place = place;
-        this.productId = productId;
+    public Transaction getTransaction() {
+        return this.transaction;
     }
-    public String getOfferId() {
-        return offerId;
-    }
-    public Place getPlace() {
-        return place;
-    }
-    public String getProductId() {
-        return productId;
-    }
-
 
     public void setTransaction(Transaction transaction) {
         this.transaction = transaction;
     }
 
-    public Transaction getTransaction() {
-        return transaction;
+    public Offer(String offerId, String placeName, String productId) {
+        this.offerId =  offerId;
+        this.placeName = placeName;
+        this.productId = productId;
     }
 
-    public Region getRegion() {
-        return place.getRegion();
+    public String getOfferId() {
+        return this.offerId;
     }
 
-    @Override
-    public String toString() {
-        return "Offer{" +
-                "offerId='" + offerId + '\'' +
-                ", place=" + place +
-                ", productId='" + productId + '\'' +
-                ", transaction=" + transaction +
-                '}';
+    public String getPlaceName() {
+        return this.placeName;
+    }
+
+    public String getProductId() {
+        return this.productId;
     }
 }
